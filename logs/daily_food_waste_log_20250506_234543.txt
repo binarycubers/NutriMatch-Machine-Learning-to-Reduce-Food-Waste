@@ -1,0 +1,7 @@
+[2025-05-06 23:45:43] Directory exists: D:\NutriMatch-Machine-Learning-to-Reduce-Food-Waste\data\raw
+[2025-05-06 23:45:43] Directory exists: D:\NutriMatch-Machine-Learning-to-Reduce-Food-Waste\data\processed
+[2025-05-06 23:45:43] Directory exists: D:\NutriMatch-Machine-Learning-to-Reduce-Food-Waste\data\interim
+[2025-05-06 23:45:43] Directory exists: D:\NutriMatch-Machine-Learning-to-Reduce-Food-Waste\data\external
+[2025-05-06 23:45:43] Directory exists: D:\NutriMatch-Machine-Learning-to-Reduce-Food-Waste\logs
+[2025-05-06 23:45:43] Directory exists: D:\NutriMatch-Machine-Learning-to-Reduce-Food-Waste\models
+[2025-05-06 23:45:43] Error loading data: File not found at: D:\NutriMatch-Machine-Learning-to-Reduce-Food-Waste\processed_data.csv

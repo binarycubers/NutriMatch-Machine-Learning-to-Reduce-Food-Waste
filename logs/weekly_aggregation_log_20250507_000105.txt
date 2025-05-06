@@ -1,0 +1,12 @@
+[2025-05-07 00:01:05] Directory exists: D:\NutriMatch-Machine-Learning-to-Reduce-Food-Waste\data\raw
+[2025-05-07 00:01:05] Directory exists: D:\NutriMatch-Machine-Learning-to-Reduce-Food-Waste\data\processed
+[2025-05-07 00:01:05] Directory exists: D:\NutriMatch-Machine-Learning-to-Reduce-Food-Waste\data\interim
+[2025-05-07 00:01:05] Directory exists: D:\NutriMatch-Machine-Learning-to-Reduce-Food-Waste\data\external
+[2025-05-07 00:01:05] Directory exists: D:\NutriMatch-Machine-Learning-to-Reduce-Food-Waste\logs
+[2025-05-07 00:01:05] Directory exists: D:\NutriMatch-Machine-Learning-to-Reduce-Food-Waste\models
+[2025-05-07 00:01:05] Loading daily data from: D:\NutriMatch-Machine-Learning-to-Reduce-Food-Waste\data\processed\daily_food_waste_20250506_234610.csv
+[2025-05-07 00:01:05] Daily data loaded successfully. Shape: (136, 11)
+[2025-05-07 00:01:05] Starting weekly aggregation...
+[2025-05-07 00:01:05] Weekly aggregation completed. Shape: (38, 14)
+[2025-05-07 00:01:05] Weekly data saved to D:\NutriMatch-Machine-Learning-to-Reduce-Food-Waste\data\processed\weekly_food_waste_20250507_000105.csv
+[2025-05-07 00:01:05] Detailed statistics saved to D:\NutriMatch-Machine-Learning-to-Reduce-Food-Waste\data\processed\weekly_stats_20250507_000105.txt

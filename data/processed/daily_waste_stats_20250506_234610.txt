@@ -1,0 +1,17 @@
+Daily Food Waste Statistics
+==========================
+
+Total days: 136
+Date range: 2023-01-03 00:00:00 to 2023-09-22 00:00:00
+
+Average daily waste by nutrient:
+Carbohydrates: 1521.23
+Fiber: 10.22
+Protein: 109.62
+Fat: 195.57
+Carbohydrates (g): 441.85
+Fiber (g): 2.88
+Protein (g): 37.52
+Fat (g): 48.02
+Total Price: 67.73
+Total_Quantity: 31.29
