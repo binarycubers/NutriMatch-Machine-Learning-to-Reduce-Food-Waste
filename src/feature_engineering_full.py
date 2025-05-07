@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 
 class FeatureEngineer:
-    def __init__(self, base_dir=None):
+    def __init__(self, input_data_path=None): 
         """
         Initialize the FeatureEngineer class
         base_dir: Base directory for all data operations (should be your project root)
