@@ -1,0 +1,10 @@
+[2025-05-07 05:16:00] Directory exists: D:\NutriMatch-Machine-Learning-to-Reduce-Food-Waste\data\processed
+[2025-05-07 05:16:00] Directory exists: D:\NutriMatch-Machine-Learning-to-Reduce-Food-Waste\data\engineered
+[2025-05-07 05:16:00] Directory exists: D:\NutriMatch-Machine-Learning-to-Reduce-Food-Waste\logs
+[2025-05-07 05:16:00] Loading weekly data from: D:\NutriMatch-Machine-Learning-to-Reduce-Food-Waste\data\processed\weekly_food_waste_20250507_000105.csv
+[2025-05-07 05:16:01] Loaded weekly data successfully. Shape: (38, 14)
+[2025-05-07 05:16:01] Created nutrient ratio features successfully
+[2025-05-07 05:16:01] Created nutrient interaction features successfully
+[2025-05-07 05:16:01] Created time-based features successfully
+[2025-05-07 05:16:01] Normalized 18 features successfully
+[2025-05-07 05:16:01] Saved engineered features to: D:\NutriMatch-Machine-Learning-to-Reduce-Food-Waste\data\engineered\engineered_features.csv
