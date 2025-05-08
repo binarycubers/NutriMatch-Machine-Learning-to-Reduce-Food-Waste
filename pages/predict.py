@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 st.title(":mag: Nutrient Forecast Viewer")
 # Sidebar filters
 nutrients = ["carbohydrates", "fiber", "protein", "fat"]
-models = ["random_forest", "xgboost"]
+models = ["random_forest", "xgboost", "lstm"]
 selected_nutrient = st.selectbox("Select Nutrient", nutrients)
 selected_model = st.radio("Select Model", models, horizontal=True)
 # Build file paths
