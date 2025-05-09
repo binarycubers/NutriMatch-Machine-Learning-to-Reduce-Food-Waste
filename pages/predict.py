@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
-import pickle
 import numpy as np
+import joblib 
 from keras.models import load_model
 import os
 
@@ -64,7 +64,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.markdown("## 🔮 Predict Nutrient Waste")
+st.markdown("## :crystal_ball: Predict Nutrient Waste")
 
 # Dropdowns for model and nutrient
 model_choice = st.selectbox("Choose model", ["Random Forest", "XGBoost", "LSTM"])
@@ -78,26 +78,54 @@ try:
     X_test = df.drop("target", axis=1).tail(8)
 
     if model_choice == "LSTM":
-        model = load_model(f"{model_dir}/{nutrient_choice}_lstm_model.h5")
+        lstm_model = load_model(f"{model_dir}/{nutrient_choice}_lstm_model.h5")
         X_input = np.array(X_test)[..., np.newaxis]  # Reshape for LSTM
-        y_pred = model.predict(X_input)
-    else:
-        model_type = "random_forest" if model_choice == "Random Forest" else "xgboost"
-        model_path = os.path.join(model_dir, f"{nutrient_choice}_{model_type}.pkl")
-        st.write(f"🔍 Trying to load model from: `{model_path}`")
+        y_pred = lstm_model.predict(X_input)
 
+    elif model_choice == "XGBoost":
+        model_path = os.path.join(model_dir, f"{nutrient_choice}_xgboost.pkl")
+        st.write(f":mag: Trying to load model from: `{model_path}`")
         if os.path.exists(model_path):
             with open(model_path, "rb") as f:
-                model = pickle.load(f)
-            y_pred = model.predict(X_test)
+                model = joblib.load(model_path)
+            if hasattr(model, "predict"):
+                y_pred = model.predict(X_test)
+            else:
+                st.error(":warning: Loaded XGBoost object is not a valid model with 'predict' method.")
+                st.stop()
         else:
-            st.error(f"❌ Model file not found: `{model_path}`")
+            st.error(f":x: Model file not found: `{model_path}`")
+            st.stop()
+
+    elif model_choice == "Random Forest":
+        model_path = os.path.join(model_dir, f"{nutrient_choice}_random_forest.pkl")
+        st.write(f":mag: Trying to load model from: `{model_path}`")
+        if os.path.exists(model_path):
+            with open(model_path, "rb") as f:
+                model = joblib.load(model_path)
+            if hasattr(model, "predict"):
+                y_pred = model.predict(X_test)
+            else:
+                st.error(":warning: Loaded Random Forest object is not a valid model with 'predict' method.")
+                st.stop()
+        else:
+            st.error(f":x: Model file not found: `{model_path}`")
             st.stop()
 
     # Display forecasted values
+    forecast_df = pd.DataFrame({
+        "Week": list(range(1, 9)),
+        f"{nutrient_choice.title()} Forecast": y_pred.flatten()
+    })
     st.subheader(f"Forecasted {nutrient_choice.title()} (Next 8 Weeks)")
-    forecast_df = pd.DataFrame({"Week": list(range(1, 9)), f"{nutrient_choice.title()} Forecast": y_pred.flatten()})
     st.dataframe(forecast_df, use_container_width=True)
+
+    # Save to CSV in results directory
+    results_dir = "results"
+    os.makedirs(results_dir, exist_ok=True)
+    result_file = os.path.join(results_dir, f"{nutrient_choice}_{model_choice.lower().replace(' ', '_')}_forecast.csv")
+    forecast_df.to_csv(result_file, index=False)
+    st.success(f"Saved forecast to: {result_file}")
 
 except FileNotFoundError:
     st.error(f"Missing data or model for {nutrient_choice}. Ensure preprocessing and training are complete.")
