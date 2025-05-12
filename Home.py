@@ -2,14 +2,13 @@ import streamlit as st
 from PIL import Image
 import os
 
+# --- General Config ---
 st.set_page_config(
-    page_title="Visualize - HealthFusion",
+    page_title="HealthFusion Dashboard",
     layout="wide",
     page_icon="🧪"
 )
 
-
-# Apply consistent styling across pages
 # --- Global CSS Styling (Dark + Vibrant) ---
 st.markdown("""
     <style>
@@ -63,22 +62,21 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.title("📊 Visualize Nutrient Waste Trends")
+# --- Home Page Content ---
+st.title("🏠 Welcome to HealthFusion Dashboard")
 
-# --- Load and Display Top Wasted Items Chart ---
-st.subheader("🥫 Top Wasted Food Items (Bar Chart)")
-top_items_path = "graphs/top_wasted_items.png"
+st.markdown("""
+HealthFusion is an AI-powered platform designed to monitor, forecast, and analyze food nutrient waste over time.
+This dashboard offers:
+- 📊 Nutrient waste forecasting using Random Forest, XGBoost, and LSTM models
+- 📈 Visual insights into top wasted food items
+- 🥫 Stock tracking and item movement analysis
+""")
 
-if os.path.exists(top_items_path):
-    st.image(top_items_path, caption="Top Wasted Items - Figure 19", use_column_width=True)
+# Display Pie Chart from generated image
+chart_path = "graphs/stock_analysis_pie.png"
+if os.path.exists(chart_path):
+    st.subheader("🍽️ Top 10 Stocked Items (Proportional View)")
+    st.image(Image.open(chart_path), caption="Stock Analysis - Pie Chart", use_column_width=True)
 else:
-    st.warning("Top wasted items chart not found. Please generate it using the appropriate script.")
-
-# --- Optionally: Pie chart version ---
-st.subheader("📈 Stock Analysis by Quantity (Pie Chart)")
-pie_chart_path = "graphs/stock_analysis_pie.png"
-
-if os.path.exists(pie_chart_path):
-    st.image(pie_chart_path, caption="Stock Analysis Pie Chart - Figure 21", use_column_width=True)
-else:
-    st.warning("Pie chart for stock analysis not found. Please run the stock analysis pie script.")
+    st.warning("Stock analysis chart not found. Please generate it first.")
