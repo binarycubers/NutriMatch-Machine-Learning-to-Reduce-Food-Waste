@@ -1,0 +1,5 @@
+nutrient,model,mse,rmse
+carbohydrates,XGBoost,115732538.597,10757.9059
+fiber,XGBoost,30836.2178,175.6024
+protein,XGBoost,253180.939,503.1709
+fat,XGBoost,3335007.5091,1826.2003

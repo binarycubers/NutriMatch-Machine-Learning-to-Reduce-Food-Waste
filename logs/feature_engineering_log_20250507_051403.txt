@@ -1,5 +1,0 @@
-[2025-05-07 05:14:03] Directory exists: D:\NutriMatch-Machine-Learning-to-Reduce-Food-Waste\data\processed
-[2025-05-07 05:14:03] Directory exists: D:\NutriMatch-Machine-Learning-to-Reduce-Food-Waste\data\engineered
-[2025-05-07 05:14:03] Directory exists: D:\NutriMatch-Machine-Learning-to-Reduce-Food-Waste\logs
-[2025-05-07 05:14:03] Loading weekly data from: D:\NutriMatch-Machine-Learning-to-Reduce-Food-Waste\data\processed\weekly.csv
-[2025-05-07 05:14:03] Error loading weekly data: File not found at: D:\NutriMatch-Machine-Learning-to-Reduce-Food-Waste\data\processed\weekly.csv
