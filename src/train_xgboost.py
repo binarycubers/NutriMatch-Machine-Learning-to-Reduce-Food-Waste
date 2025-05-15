@@ -1,74 +1,68 @@
 import pandas as pd
-import numpy as np
-from xgboost import XGBRegressor
+import xgboost as xgb
 from sklearn.metrics import mean_squared_error
 import joblib
 import os
 
-# Paths
 engineered_dir = "data/engineered"
 models_dir = "models"
 forecast_dir = "data/forecast"
-metrics_path = os.path.join(forecast_dir, "xgb_model_scores.csv")
-
 os.makedirs(models_dir, exist_ok=True)
 os.makedirs(forecast_dir, exist_ok=True)
 
 nutrients = ["carbohydrates", "fiber", "protein", "fat"]
+model_name = "xgboost"
+all_scores = []
 
-# Function to load data
-def load_data(nutrient):
-    return pd.read_csv(os.path.join(engineered_dir, f"{nutrient}_lagged.csv"))
-
-# Function to split data
-def split_data(df):
-    X = df.drop(columns=["target", "date"], errors='ignore')
-    y = df["target"]
-    return X[:-8], X[-8:], y[:-8], y[-8:]
-
-# Save evaluation results
-results = []
-
-# Loop over nutrients
 for nutrient in nutrients:
-    df = load_data(nutrient)
-    dates = df["date"].values[-8:] if "date" in df.columns else np.arange(1, 9)
+    df = pd.read_csv(os.path.join(engineered_dir, f"{nutrient}_lagged.csv"))
 
-    X_train, X_test, y_train, y_test = split_data(df)
+    X = df.drop(["target", "date"], axis=1, errors="ignore")
+    y = df["target"]
 
-    model = XGBRegressor(n_estimators=100, learning_rate=0.1, random_state=42)
+    # Split into train/test (last 8 for test)
+    X_train, X_test = X[:-8], X[-8:]
+    y_train, y_test = y[:-8], y[-8:]
+
+    # Train model
+    model = xgb.XGBRegressor(n_estimators=100, random_state=42)
     model.fit(X_train, y_train)
 
-    preds = model.predict(X_test)
-    rmse = mean_squared_error(y_test, preds, squared=False)
-    mse = mean_squared_error(y_test, preds)
+    # Predictions
+    train_preds = model.predict(X_train)
+    test_preds = model.predict(X_test)
 
-    print(f"{nutrient} XGBoost RMSE: {rmse:.2f}")
+    # Metrics
+    train_mse = mean_squared_error(y_train, train_preds)
+    train_rmse = mean_squared_error(y_train, train_preds, squared=False)
+    test_mse = mean_squared_error(y_test, test_preds)
+    test_rmse = mean_squared_error(y_test, test_preds, squared=False)
+
+    all_scores.append({
+        "nutrient": nutrient,
+        "train_mse": train_mse,
+        "train_rmse": train_rmse,
+        "test_mse": test_mse,
+        "test_rmse": test_rmse
+    })
 
     # Save model
     model_path = os.path.join(models_dir, f"{nutrient}_xgboost.pkl")
     joblib.dump(model, model_path)
     print(f"✅ Saved model: {model_path}")
 
-    # Save forecast CSV
-    forecast_df = pd.DataFrame({
-        "date": dates,
-        "actual": y_test.values,
-        "predicted": preds
+    # Save combined prediction CSV
+    combined_df = pd.DataFrame({
+        "date": df["date"],
+        "actual": y,
+        "predicted_train": list(train_preds) + [None]*8,
+        "predicted_test": [None]*(len(y)-8) + list(test_preds)
     })
-    forecast_csv_path = os.path.join(forecast_dir, f"{nutrient}_xgboost_forecast.csv")
-    forecast_df.to_csv(forecast_csv_path, index=False)
-    print(f"📊 Saved forecast CSV: {forecast_csv_path}")
+    forecast_path = os.path.join(forecast_dir, f"{nutrient}_xgboost_forecast.csv")
+    combined_df.to_csv(forecast_path, index=False)
+    print(f"📊 Saved forecast: {forecast_path}")
 
-    # Append metrics
-    results.append({
-        "nutrient": nutrient,
-        "model": "XGBoost",
-        "mse": round(mse, 4),
-        "rmse": round(rmse, 4)
-    })
-
-# Save all metrics
-results_df = pd.DataFrame(results)
-results_df.to_csv(metrics_path, index=False)
-print(f"📈 Saved model evaluation scores: {metrics_path}")
+# Save score file
+score_df = pd.DataFrame(all_scores)
+score_df.to_csv(os.path.join(forecast_dir, "xgboost_model_scores.csv"), index=False)
+print("📈 Saved xgboost score file.")

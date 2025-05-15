@@ -2,45 +2,45 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 
-# Paths
 forecast_dir = "data/forecast"
-graphs_dir = "graphs"
-os.makedirs(graphs_dir, exist_ok=True)
+output_dir = "graphs"
 
-nutrients = ["carbohydrates", "fiber", "protein", "fat"]
 models = ["random_forest", "xgboost", "lstm"]
+nutrients = ["carbohydrates", "fiber", "protein", "fat"]
 
-for nutrient in nutrients:
-    for model in models:
+for model in models:
+    model_output_dir = os.path.join(output_dir, model)
+    os.makedirs(model_output_dir, exist_ok=True)
+
+    for nutrient in nutrients:
         forecast_file = os.path.join(forecast_dir, f"{nutrient}_{model}_forecast.csv")
-
         if not os.path.exists(forecast_file):
-            print(f"⚠️ Skipping missing file: {forecast_file}")
+            print(f"❌ Missing: {forecast_file}")
             continue
 
         df = pd.read_csv(forecast_file)
+        plt.figure(figsize=(12, 6))
 
-        # Ensure dates are sorted and in datetime format
         if "date" in df.columns:
-            df["date"] = pd.to_datetime(df["date"])
-            df = df.sort_values("date")
+            x = pd.to_datetime(df["date"])
         else:
-            df["date"] = [f"Week {i+1}" for i in range(len(df))]
+            x = list(range(len(df)))
 
-        # Plot
-        plt.figure(figsize=(8, 5))
-        plt.plot(df["date"], df["actual"], label="Actual", marker='o')
-        plt.plot(df["date"], df["predicted"], label="Predicted", marker='x')
-        plt.title(f"{nutrient.capitalize()} Forecast - {model.replace('_', ' ').title()}")
-        plt.xlabel("Date")
-        plt.ylabel(f"{nutrient.capitalize()} Value")
+        plt.plot(x, df["actual"], label="Actual Waste", color="black", linewidth=2.5, marker='o')
+        if "predicted_train" in df:
+            plt.plot(x, df["predicted_train"], label="Predicted Waste (Train)", linestyle="--", color="orange", linewidth=2)
+        if "predicted_test" in df:
+            plt.plot(x, df["predicted_test"], label="Predicted Waste (Test)", linestyle="-.", color="cyan", linewidth=2)
+
+        plt.title(f"Prediction Waste for {nutrient.title()} ({model.replace('_', ' ').title()})", fontsize=14, fontweight='bold')
+        plt.xlabel("Date", fontsize=12)
+        plt.ylabel(nutrient.title(), fontsize=12)
         plt.xticks(rotation=45)
-        plt.legend()
+        plt.grid(True, linestyle='--', alpha=0.5)
+        plt.legend(loc='upper left', fontsize=10)
         plt.tight_layout()
 
-        # Save plot
-        output_file = os.path.join(graphs_dir, f"{nutrient}_{model}_forecast.png")
-        plt.savefig(output_file)
+        out_path = os.path.join(model_output_dir, f"{nutrient}_{model}_forecast.png")
+        plt.savefig(out_path, dpi=300)
         plt.close()
-
-        print(f"✅ Saved graph: {output_file}")
+        print(f"✅ Saved: {out_path}")

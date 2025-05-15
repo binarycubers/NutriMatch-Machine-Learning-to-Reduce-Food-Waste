@@ -1,115 +1,154 @@
-# FYP – Nutrition Waste Prediction Using AI (Random Forest, XGBoost & LSTM)
+HealthFusion - Nutrient Waste Forecasting Dashboard
 
-This project forecasts future nutrient waste — **Carbohydrates**, **Protein**, **Fat**, and **Fiber** — using historical weekly food waste data. It applies **Random Forest**, **XGBoost**, and **LSTM** models to predict nutrient levels for the next 8 weeks, visualized through an interactive Streamlit web interface.
+🌱 Project Overview
 
----
+HealthFusion is an AI-powered food waste prediction dashboard that helps monitor, analyze, and forecast nutrient waste using machine learning models such as Random Forest, XGBoost, and LSTM. It also includes visual analytics for stock trends and the most wasted food items.
 
-## 🚀 Features
-- Upload your weekly nutrient data and predict upcoming nutrient waste
-- Visualize model forecasts across Random Forest, XGBoost, and LSTM
-- Download results as CSV
-- Fully modular UI with dark-themed Streamlit styling
+⚙️ 1. Environment Setup
 
----
+📦 Requirements
+To get started, install the required dependencies:
 
-## 🛠️ Project Setup
-
-### 1. Clone the repository
-```bash
-git clone https://github.com/your-username/FYP-Nutrition-Prediction-AI-Project.git
-cd FYP-Nutrition-Prediction-AI-Project
-```
-
-### 2. Create and activate a virtual environment
-```bash
-python -m venv venv
-```
-**On Windows:**
-```bash
-venv\Scripts\activate
-```
-**On macOS/Linux:**
-```bash
-source venv/bin/activate
-```
-
-**If PowerShell blocks the activation:**
-```powershell
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-```
-
-### 3. Install dependencies
-```bash
 pip install -r requirements.txt
-```
 
----
+🧠 Key Libraries Used
 
-## 📁 Data Structure
+streamlit – for the interactive dashboard
+pandas – for data manipulation
+matplotlib – for plotting
+scikit-learn – for training ML models (Random Forest, XGBoost)
+xgboost – for XGBoost model
+tensorflow/keras – for LSTM models
+joblib – for saving/loading model objects
 
-All processed files are located in the `/data/engineered/` directory.
 
-### Format of lag-based training files:
-| File Name            | Description                                             |
-|----------------------|---------------------------------------------------------|
-| `carbohydrates_lagged.csv` | Lag features (lag_1 to lag_4) + target for Carbohydrates |
-| `fiber_lagged.csv`         | Lag features + target for Fiber                     |
-| `protein_lagged.csv`       | Lag features + target for Protein                   |
-| `fat_lagged.csv`           | Lag features + target for Fat                       |
 
-Each row contains:
-- `lag_1` to `lag_4`: Nutrient values for the past 4 weeks
-- `target`: Nutrient value for the next week (week 5)
+📁 2. Project Directory Structure
 
----
-
-## 🤖 Models Used
-- `Random Forest` – Scikit-learn
-- `XGBoost` – XGBoost
-- `LSTM` – TensorFlow/Keras (for deep learning based predictions)
-
----
-
-## 📊 Output Directory
-Trained models are saved in `/models/`:
-- `carbohydrates_random_forest.pkl`, `fiber_lstm_model.h5`, etc.
-
-Forecast results are saved in `/results/` after prediction:
-- `carbohydrates_lstm_forecast.csv`, etc.
-
----
-
-## 💻 Run the App
-```bash
-streamlit run app.py
-```
-
-Pages:
-- **Home**: Project overview
-- **Predict**: Choose model and nutrient to forecast
-- **Visualize**: View past forecast results
-- **Upload**: Upload your own CSV for prediction
-
----
-
-## 📂 Folder Structure
-```
-├── app.py
-├── models/                 # Saved model files
-├── data/engineered/        # Preprocessed feature-lag datasets
-├── results/                # Forecast outputs (CSV)
-├── src/                    # Training scripts
-├── pages/                  # Streamlit multipage views
+NutriMatch-Machine-Learning-to-Reduce-Food-Waste/
+│
+├── data/
+│   ├── raw/                # Initial input CSVs (Merged_ItemList.csv, etc.)
+│   ├── interim/            # Intermediate cleaned/preprocessed data
+│   ├── processed/          # Daily and weekly nutrient data
+│   ├── engineered/         # Lagged feature files for model training
+│   └── forecast/           # Model forecast outputs and score CSVs
+│
+├── models/                 # Saved models (.pkl for RF/XGBoost, .h5 for LSTM)
+├── graphs/                 # Generated visual forecast and stock analysis charts
+│   ├── lstm/
+│   ├── random_forest/
+│   ├── xgboost/
+│   └── stock_analysis_pie.png
+│
+├── pages/                  # Streamlit multipage app scripts
 │   ├── Home.py
-│   ├── Predict.py
-│   ├── Visualize.py
-│   └── Upload.py
+│   ├── Upload.py
+│   ├── All_Predictions.py
+│   └── Best_Model.py
+│
+├── src/                    # Core scripts for model training, preprocessing, charts
+│   ├── generate_forecast_charts.py
+│   ├── generate_model_scores.py
+│   ├── generate_lag_features.py
+│   ├── generate_stock_analysis_piechart.py
+│   ├── preprocess_nutrient_data.py
+│   ├── train_random_forest.py
+│   ├── train_xgboost.py
+│   └── train_lstm.py
+│
+├── results/                # (Optional) Any CSV or result outputs
+├── README.md               # This file
+├── app.py / main.py        # Streamlit entry point
 └── requirements.txt
-```
 
----
 
-## ✅ Status
-All phases (preprocessing → training → forecasting → Streamlit dashboard) are complete and functional.
+🔁 3. Reusing for New Dataset
+If you want to analyze a new dataset, do the following cleanup first:
 
-Need help with deployment or visual tweaks? Let me know!
+🗑 Delete These:
+CSV Data:
+    data/engineered/*.csv
+    data/forecast/*.csv
+    data/interim/*.csv
+    data/processed/*.csv
+
+Model Files:
+    models/*.pkl
+    models/*.h5
+
+Graphs:
+    graphs/**/*.png (or specifically forecast/*.png and stock_analysis_*.png)
+
+This ensures your new data is processed and modeled cleanly without conflicts from previous runs.
+
+
+📥 4. Required Format for Raw Data
+The main raw input must be:
+
+📄 Merged_ItemList.csv
+Column Name	Description
+item description	Name of the food item
+qty	Quantity wasted per item
+date	Date of the entry (dd/mm/yyyy)
+
+Make sure column names are spelled exactly (lowercase preferred) and qty must be numerical.
+
+⚙️ 5. Step-by-Step Usage Instructions
+After placing the new raw files in data/raw/, follow this order:
+
+🔹 Step 1: Preprocess the Raw Data
+
+python src/preprocess_nutrient_data.py
+Generates: daily_nutrient_waste.csv and weekly_nutrient_waste.csv
+
+
+🔹 Step 2: Generate Lagged Features
+
+python src/generate_lag_features.py
+Generates: *_lagged.csv files in data/engineered/
+
+🔹 Step 3: Train Models
+
+python src/train_random_forest.py
+python src/train_xgboost.py
+python src/train_lstm.py
+Saves models in models/
+
+Also generates forecast CSVs in data/forecast/
+
+🔹 Step 4: Evaluate & Score Models
+
+python src/generate_model_scores.py
+Saves: *_model_scores.csv files in data/forecast/
+
+🔹 Step 5: Generate Forecast Graphs
+
+python src/generate_forecast_charts.py
+Saves: line charts in graphs/{model}/{nutrient}_{model}_forecast.png
+
+🔹 Step 6: Generate Stock Analysis Chart
+
+python src/generate_stock_analysis_piechart.py
+Saves: stock_analysis_pie.png to graphs/
+
+🔹 Step 7: Run the Dashboard
+
+streamlit run Home.py
+From the sidebar:
+
+Home – Project overview and stock analysis chart
+
+All Predictions – View charts, RMSEs, and forecasts for all models
+
+Best Model – Displays LSTM results and evaluation
+
+Upload – (Coming soon) for custom file input
+
+
+
+🧠 Notes
+Best model currently is LSTM, based on lowest RMSE across nutrients.
+All charts are styled to reflect academic report formatting.
+Training & test splits are handled inside model scripts (last 8 weeks as test).
+Model performance is logged and displayed dynamically.

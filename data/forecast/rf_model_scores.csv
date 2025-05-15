@@ -1,5 +1,0 @@
-nutrient,model,mse,rmse
-carbohydrates,RandomForest,110406472.5626,10507.4484
-fiber,RandomForest,74906.8047,273.6911
-protein,RandomForest,579953.2557,761.5466
-fat,RandomForest,3526776.9751,1877.9715
