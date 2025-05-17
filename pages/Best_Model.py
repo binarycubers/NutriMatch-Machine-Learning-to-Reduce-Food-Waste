@@ -2,13 +2,32 @@ import streamlit as st
 import pandas as pd
 import os
 import matplotlib.pyplot as plt
+from PIL import Image
 
 st.set_page_config(
-    page_title="Visualize - HealthFusion",
+    page_title="Best Model - HealthFusion",
     layout="wide",
     page_icon="🧪"
 )
 
+# --- Load model scores to determine best model dynamically ---
+@st.cache_data
+def load_scores():
+    model_paths = {
+        "LSTM": "data/forecast/lstm_model_scores.csv",
+        "XGBoost": "data/forecast/xgboost_model_scores.csv",
+        "Random Forest": "data/forecast/random_forest_model_scores.csv"
+    }
+    scores = {}
+    for model, path in model_paths.items():
+        if os.path.exists(path):
+            df = pd.read_csv(path)
+            scores[model] = df["test_rmse"].mean()
+    best_model = min(scores, key=scores.get)
+    return best_model, model_paths[best_model]
+
+best_model, best_model_score_path = load_scores()
+score_df = pd.read_csv(best_model_score_path)
 
 # Apply consistent styling across pages
 # --- Global CSS Styling (Dark + Vibrant) ---
@@ -64,60 +83,67 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.markdown("## 🥇 Best Model Forecast: LSTM")
-
-st.write("""
-LSTM (Long Short-Term Memory) has been identified as the best-performing model based on overall accuracy and performance across nutrient categories.
-Below you can select a nutrient and view its detailed forecast including actual vs. predicted values for both training and testing periods.
+# --- Page config ---
+st.markdown(f"## 🥇 Best Model Forecast: {best_model}")
+st.markdown(f"""
+{best_model} has been identified as the best-performing model based on **lowest Testing RMSE** across nutrient categories.  
+Below you can select a nutrient and view its detailed forecast including:
+- Actual vs Predicted values (Training & Testing)
+- Training/Testing MSE & RMSE
+- Weekly forecast values
 """)
 
-nutrients = ["carbohydrates", "fiber", "protein", "fat"]
-nutrient_choice = st.selectbox("Select Nutrient", nutrients)
+# --- Nutrient Selector ---
+nutrients = ["carbohydrates", "protein", "fat", "fiber"]
+selected_nutrient = st.selectbox("Select Nutrient", nutrients)
 
-forecast_path = f"data/forecast/{nutrient_choice}_lstm_forecast.csv"
-
-if not os.path.exists(forecast_path):
-    st.warning(f"Forecast data not found for {nutrient_choice} using LSTM.")
-    st.stop()
-
-# Load forecast data
-df = pd.read_csv(forecast_path)
-df["date"] = pd.to_datetime(df["date"])
-score_path = "data/forecast/lstm_model_scores.csv"
-scores = None
-if os.path.exists(score_path):
-    score_df = pd.read_csv(score_path)
-    scores = score_df[score_df["nutrient"] == nutrient_choice].squeeze()
-
-
-# Plot chart
-fig, ax = plt.subplots(figsize=(10, 5))
-ax.plot(df["date"], df["actual"], label="Actual Waste", color="black", linewidth=2.5, marker='o')
-if "predicted_train" in df:
-    ax.plot(df["date"], df["predicted_train"], label="Predicted Waste (Train)", linestyle="--", color="orange", linewidth=2)
-if "predicted_test" in df:
-    ax.plot(df["date"], df["predicted_test"], label="Predicted Waste (Test)", linestyle="-.", color="cyan", linewidth=2)
-
-ax.set_title(f"Forecast for {nutrient_choice.title()} using LSTM", fontsize=14, fontweight='bold')
-ax.set_xlabel("Date")
-ax.set_ylabel("Waste Quantity")
-ax.grid(True, linestyle="--", alpha=0.5)
-ax.legend()
-st.pyplot(fig, clear_figure=True, use_container_width=True)
-
-# Show metrics
-st.markdown("### 🧠 Model Evaluation Metrics (LSTM)")
-if scores is not None:
-    st.markdown(f"- **Training MSE**: `{scores.train_mse:.4f}`")
-    st.markdown(f"- **Training RMSE**: `{scores.train_rmse:.4f}`")
-    st.markdown(f"- **Testing MSE**: `{scores.test_mse:.4f}`")
-    st.markdown(f"- **Testing RMSE**: `{scores.test_rmse:.4f}`")
+# --- Load & Display Graph ---
+graph_path = f"graphs/{best_model.lower()}/{selected_nutrient}_{best_model.lower()}_forecast.png"
+if os.path.exists(graph_path):
+    st.image(graph_path, caption=f"Forecast for {selected_nutrient.title()} using {best_model}", width=850)
 else:
-    st.info("Score data for LSTM not found.")
+    st.warning(f"Graph not found: {graph_path}")
 
+# --- Display Score Metrics ---
+st.markdown(f"### 🧠 Model Evaluation Metrics ({best_model})")
+score_row = score_df[score_df['nutrient'] == selected_nutrient]
+if not score_row.empty:
+    row = score_row.iloc[0]
+    st.markdown(f"- **Training MSE**: `{row['train_mse']:.4f}`")
+    st.markdown(f"- **Training RMSE**: `{row['train_rmse']:.4f}`")
+    st.markdown(f"- **Testing MSE**: `{row['test_mse']:.4f}`")
+    st.markdown(f"- **Testing RMSE**: `{row['test_rmse']:.4f}`")
+else:
+    st.error(f"No score found for {selected_nutrient} in {best_model} score file.")
 
-# Show next 8 week forecast table
-st.markdown(f"### \U0001F4C8 Forecasted {nutrient_choice.title()} for Next 8 Weeks")
-next_8 = df[["date", "predicted_test"]].dropna().reset_index(drop=True)
-next_8.columns = ["Date", f"{nutrient_choice.title()} Forecast"]
-st.dataframe(next_8, use_container_width=True)
+# --- Load & Display Forecast Table ---
+# --- Full Model Comparison for Selected Nutrient ---
+st.markdown(f"### 🔍 {selected_nutrient.title()} Comparison Across All Models")
+
+comparison_data = []
+
+# Load scores for all models
+for model_name, path in {
+    "LSTM": "data/forecast/lstm_model_scores.csv",
+    "XGBoost": "data/forecast/xgboost_model_scores.csv",
+    "Random Forest": "data/forecast/random_forest_model_scores.csv"
+}.items():
+    if os.path.exists(path):
+        df = pd.read_csv(path)
+        row = df[df['nutrient'] == selected_nutrient]
+        if not row.empty:
+            r = row.iloc[0]
+            comparison_data.append({
+                "Model": model_name,
+                "Train MSE": f"{r['train_mse']:.2f}",
+                "Train RMSE": f"{r['train_rmse']:.2f}",
+                "Test MSE": f"{r['test_mse']:.2f}",
+                "Test RMSE": f"{r['test_rmse']:.2f}",
+            })
+
+# Convert to DataFrame and show
+if comparison_data:
+    comp_df = pd.DataFrame(comparison_data)
+    st.dataframe(comp_df, use_container_width=True)
+else:
+    st.warning("Comparison data not available for this nutrient.")

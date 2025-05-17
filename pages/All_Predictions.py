@@ -121,10 +121,10 @@ st.pyplot(fig)
 # Show metrics
 st.markdown("### \U0001F4DD Model Evaluation Metrics")
 if scores is not None:
-    st.markdown(f"- **Training MSE**: `{scores.train_mse:.4f}`")
-    st.markdown(f"- **Training RMSE**: `{scores.train_rmse:.4f}`")
-    st.markdown(f"- **Testing MSE**: `{scores.test_mse:.4f}`")
-    st.markdown(f"- **Testing RMSE**: `{scores.test_rmse:.4f}`")
+    st.markdown(f"- **Training MSE**: `{scores['train_mse']:.4f}`")
+    st.markdown(f"- **Training RMSE**: `{scores['train_rmse']:.4f}`")
+    st.markdown(f"- **Testing MSE**: `{scores['test_mse']:.4f}`")
+    st.markdown(f"- **Testing RMSE**: `{scores['test_rmse']:.4f}`")
 else:
     st.info("No score file found for this model.")
 
